@@ -1,0 +1,80 @@
+create database supplies;
+use supplies;
+
+create table Suppliers
+(sid int,
+sname varchar(30),
+address varchar(30),
+primary key(sid));
+
+create table Parts
+(pid int,
+pname varchar(30),
+color varchar(15),
+primary key(pid));
+
+create table Catalog
+(sid int,
+pid int,
+cost float,
+primary key(sid,pid),
+foreign key(sid) references suppliers(sid),
+foreign key(pid) references parts(pid));
+
+insert into Suppliers
+values(10001,"Acme Widget","Bangalore"),
+	  (10002,"Johns","Kolkata"),
+      (10003,"Vimal","Mumbai"),
+      (10004,"Reliance","Delhi");
+select * from suppliers;
+
+insert into Parts
+values(20001,"Book","Red"),
+      (20002,"Pen","Red"),
+      (20003,"Pencil","Green"),
+      (20004,"Mobile","Green"),
+      (20005,"Charger","Black");
+select * from parts;
+
+insert into Catalog
+values(10001,20001,10),
+      (10001,20002,10),
+      (10001,20003,30),
+      (10001,20004,10),
+      (10001,20005,10),
+      (10002,20001,10),
+      (10002,20002,20),
+      (10003,20003,30),
+      (10004,20003,40);
+select * from catalog;
+SELECT S.sname
+2 FROM Suppliers S
+3 WHERE NOT EXISTS ((SELECT P.pid FROM Parts P)
+4 MINUS (SELECT C.pid FROM Catalog C
+5 WHERE C.sid = S.sid));
+
+SELECT S.sname
+FROM Suppliers S
+WHERE NOT EXISTS (( SELECT P.pid
+FROM Parts P
+WHERE P.color = ‘Red’ )
+MINUS
+( SELECT C.pid
+FROM Catalog C, Parts P
+WHERE C.sid = S.sid AND
+C.pid = P.pid AND P.color = ‘Red’ ));
+
+SELECT DISTINCT C.sid FROM Catalog C
+2 WHERE C.cost &gt; ( SELECT AVG (C1.cost)
+3 FROM Catalog C1
+4 WHERE C1.pid = C.pid );
+
+SELECT P.pid, S.sname
+FROM Parts P, Suppliers S, Catalog C
+WHERE C.pid = P.pid
+AND C.sid = S.sid
+AND C.cost = (SELECT MAX (C1.cost)
+FROM Catalog C1
+WHERE C1.pid = P.pid);
+
+
