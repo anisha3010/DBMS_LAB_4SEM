@@ -1,0 +1,99 @@
+create database stud_fac;
+use stud_fac;
+
+create table student
+(snum int,
+sname varchar(30),
+major varchar(30),
+level varchar(30),
+age int,
+primary key(snum));
+
+create table faculty
+(fid int,
+fname varchar(30),
+deptid int,
+primary key(fid));
+
+create table class
+(name varchar(20),
+meets_at datetime,
+room varchar(20),
+fid int,
+primary key(name),
+foreign key(fid) references faculty(fid));
+
+create table enrolled
+(snum int,
+cname varchar(30),
+primary key(snum,cname),
+foreign key(snum) references student(snum),
+foreign key(cname) references class(name));
+
+INSERT INTO student 
+VALUES(1,'jhon','CS','Sr',19),
+      (2, 'Smith', 'CS', 'Jr', 20),
+      (3 , 'Jacob', 'CV', 'Sr', 20),
+      (4, 'Tom ', 'CS', 'Jr', 20),
+      (5, 'Rahul', 'CS', 'Jr', 20),
+      (6, 'Rita', 'CS', 'Sr', 21);
+select * from student;
+
+insert into faculty
+values(11, 'Harish', 1000),
+      (12, 'MV', 1000),
+      (13 , 'Mira', 1001),
+      (14, 'Shiva', 1002),
+      (15, 'Nupur', 1000);
+select * from faculty;
+
+insert into class
+values('class1', '12/11/15 10:15:16', 'R1', 14);
+insert into class
+values('class10', '12/11/15 10:15:16', 'R128', 14),
+      ('class2', '12/11/15 10:15:20', 'R2', 12),
+      ('class3', '12/11/15 10:15:25', 'R3', 12),
+      ('class4', '12/11/15 20:15:20', 'R4', 14),
+      ('class5', '12/11/15 20:15:20', 'R3', 15),
+      ('class6', '12/11/15 13:20:20', 'R2', 14),
+      ('class7', '12/11/15 10:10:10', 'R3', 14);
+select * from class;
+
+insert into enrolled
+values(1, 'class1'),
+      (2, 'class1'),
+      (3, 'class3'),
+      (4, 'class3'),
+      (5, 'class4'),
+      (1, 'class5'),
+      (2, 'class5'),
+      (3, 'class5'),
+      (4, 'class5'),
+      (5, 'class5');
+select * from enrolled;
+
+select distinct(S.sname)
+from student S, class C, enrolled E, faculty F
+where S.snum = E.snum and E.cname = C.name and C.fid = F.fid and
+F.fname = "Harish" and S.level = "Jr";
+
+select C.name from class C where C.room='R128'
+or C.name in(select E.cname from enrolled E group by E.cname having count(*)>=5);
+
+select distinct(S.sname) from student S, enrolled E, class C where S.snum=E.snum and
+E.cname=C.name and C.meets_at =(select C1.meets_at from class C1 group by meets_at having count(*)=2);
+
+select distinct F.fname
+from faculty F
+where 5 > (select count(E.snum) from class C, enrolled E where C.name = E.cname
+and C.fid = F.fid);
+
+select distinct S.sname
+from student S
+where S.snum not in (select E.snum from enrolled E );
+
+
+
+
+      
+      
